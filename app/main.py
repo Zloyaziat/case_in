@@ -1,31 +1,30 @@
-from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 from pathlib import Path
-from dateutil.relativedelta import relativedelta  
-from pydantic import BaseModel
-import sys
-from prophet import Prophet
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from app.db.database import  get_db
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import and_,select, func, desc, and_
-from app import models
-from datetime import datetime, timedelta, date
-from typing import Optional
-import pandas as pd
+
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+from .database.db import init_db, engine   # ← вот так
+from .routers import formulas, sensors
+from fastapi.responses import RedirectResponse
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+    await engine.dispose()
+
+
+app = FastAPI(lifespan=lifespan)
 
 # uvicorn app.main:app --reload
 
-app = FastAPI()
 
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse("/frontend/formulas.html")
+app.include_router(formulas.router)
+app.include_router(sensors.router)
 
-
-BASE_DIR = Path(__file__).parent.parent
-FRONTEND_DIR = BASE_DIR / "frontend"
-
-app.mount("/css", StaticFiles(directory=FRONTEND_DIR / "css"), name="css")
-app.mount("/js", StaticFiles(directory=FRONTEND_DIR / "js"), name="js")
-app.mount("/html", StaticFiles(directory=FRONTEND_DIR / "js"), name="html")
-
+FRONTEND = Path(__file__).resolve().parent.parent / "frontend"
+app.mount("/frontend", StaticFiles(directory=FRONTEND, html=True), name="frontend")

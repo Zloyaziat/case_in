@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Приёмка формул — проверка</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1.5rem; max-width: 1100px; }
+    h2 { margin: 1.2rem 0 .4rem; font-size: 1.05rem; }
+    button { padding: .45rem .9rem; margin: 0 .4rem .4rem 0; cursor: pointer; }
+    table { border-collapse: collapse; font-size: .85rem; margin: .4rem 0; }
+    th, td { border: 1px solid #ccc; padding: .25rem .5rem; text-align: left; }
+    #log { background: #111; color: #ddd; padding: .6rem; height: 280px; overflow: auto;
+           font: .8rem/1.35 ui-monospace, monospace; white-space: pre-wrap; }
+    .ok { color: #6c6; } .err { color: #f77; } .warn { color: #fc6; }
+  </style>
+</head>
+<body>
+  <h1>Приёмка формул</h1>
+
+  <h2>1. Датчики из БД</h2>
+  <button id="btnSensors">Загрузить датчики (GET /api/sensors)</button>
+  <div id="sensorsBox"></div>
+
+  <h2>2. Формулы из файла</h2>
+  <button id="btnDemo">Взять data/formulas.json</button>
+  <input type="file" id="fileInput" accept=".json,application/json">
+  <div id="formulasBox"></div>
+
+  <h2>3. Проверка и отправка</h2>
+  <button id="btnValidate">Проверить локально</button>
+  <button id="btnSend">Отправить в БД (POST /api/formulas)</button>
+  <button id="btnList">Показать, что в БД</button>
+
+  <pre id="log"></pre>
+  <script src="js/formulas.js"></script>
+</body>
+</html>
