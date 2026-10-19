@@ -60,7 +60,7 @@
     sensors = r.body;
     renderTable($("sensorsBox"),
       ["tag", "параметр", "ед.", "прибор", "valid_min", "valid_max"],
-      sensors.map((s) => [s.tag,  s.parameter, s.unit, s.instrument, s.valid_min, s.valid_max]));
+      sensors.map((s) => [s.tag, s.parameter, s.unit, s.instrument, s.valid_min, s.valid_max]));
     log(`Датчиков в БД: ${sensors.length}`, sensors.length ? "ok" : "warn");
     if (!sensors.length) log("Пусто: выполните sql/seed_demo_sensors.sql или добавьте свои датчики.", "warn");
   }
@@ -120,9 +120,15 @@
 
       steps.forEach((s) => {
         const at = `${where}, шаг ${s.step}`;
-        for (const [k, v] of Object.entries(s.in_data || {})) if (!(v > 0)) problems.push(`${at}: in_data['${k}'] должна быть > 0`);
-        for (const [k, v] of Object.entries(s.out_data || {})) if (!(v >= 0)) problems.push(`${at}: out_data['${k}'] < 0`);
-        for (const [k, v] of Object.entries(s.constant || {})) if (!(v > 0 && v <= 1)) problems.push(`${at}: constant['${k}'] вне (0, 1]`);
+        if (!s.step_key) problems.push(`${at}: пустая формула (step_key)`);
+        if (!s.step_value) problems.push(`${at}: пустой результат (step_value)`);
+        for (const [k, v] of Object.entries(s.in_data || {})) if (!(v > 0)) problems.push(`${at}: in_data['${k}'] (кг) должна быть > 0`);
+        for (const [k, v] of Object.entries(s.out_data || {})) if (!(v >= 0)) problems.push(`${at}: out_data['${k}'] (кг) < 0`);
+        for (const [k, v] of Object.entries(s.constant || {})) {
+          if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(k)) problems.push(`${at}: ключ константы '${k}' должен быть латиницей`);
+          if (!(v > 0)) problems.push(`${at}: constant['${k}'] должна быть > 0`);
+        }
+        if (s.amount_time != null && !(s.amount_time > 0)) problems.push(`${at}: amount_time (минуты) должен быть > 0`);
 
         for (const [tag, limits] of Object.entries(s.dict_PLC_id || {})) {
           const sensor = known.get(tag);
@@ -172,9 +178,40 @@
       log(`  #${f.id} ${f.name} v${f.version}`);
       d.body.steps.forEach((s) => {
         const sens = Object.entries(s.sensors).map(([t, v]) => `${t} (${v.parameter}, ${v.unit || "?"})`).join(", ");
-        log(`     шаг ${s.step} ${s.step_key}: датчики -> ${sens || "нет"}`);
+        log(`     шаг ${s.step}: ${s.step_key} => ${s.step_value}, ${s.amount_time_min ?? "?"} мин, датчики: ${sens || "нет"}`);
       });
     }
+  }
+
+  // ---------- 4. расчёт ----------
+  async function calculate() {
+    const id = Number($("calcId").value);
+    if (!id) { log("Укажите id формулы (его видно после 'Показать, что в БД').", "warn"); return; }
+    const body = {
+      spread_pct: Number($("calcSpread").value) || 0,
+      tolerance_pct: Number($("calcTol").value) || 10,
+    };
+    const raw = $("calcInputs").value.trim();
+    if (raw) {
+      try { body.inputs = JSON.parse(raw); }
+      catch (e) { log("Поле масс: невалидный JSON - " + e.message, "err"); return; }
+    }
+    const r = await api(`/api/formulas/${id}/calculate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) { log(`Расчёт: ${r.status} ${fmtDetail(r.body)}`, "err"); return; }
+    const d = r.body;
+    log(`Расчёт: ${d.formula.name} v${d.formula.version}`);
+    d.steps.forEach((s) => {
+      const exp = s.expected_kg == null ? "ожидание не задано"
+        : `ожидание ${s.expected_kg} кг, откл. ${s.deviation_pct}%, качество ${s.quality}`;
+      log(`  шаг ${s.step}: ${s.equation} | лимитирует ${s.limiting} | теор. ${s.theoretical_kg[s.product]} кг`
+        + ` x ${s.factor} = ${s.practical_kg[s.product]} кг | ${exp}`);
+    });
+    const range = d.final_mass_range_kg ? ` (диапазон ${d.final_mass_range_kg[0]}-${d.final_mass_range_kg[1]} кг при +-${d.spread_pct}%)` : "";
+    log(`ИТОГ: ${d.final_product} = ${d.final_mass_kg} кг${range}; общий выход ${d.total_yield_pct}%; качество ${d.quality ?? "нет ожидания"}`, "ok");
   }
 
   // ---------- старт ----------
@@ -184,4 +221,5 @@
   $("btnValidate").addEventListener("click", validateLocal);
   $("btnSend").addEventListener("click", sendAll);
   $("btnList").addEventListener("click", showDb);
+  $("btnCalc").addEventListener("click", calculate);
 })();

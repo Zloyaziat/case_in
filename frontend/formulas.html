@@ -32,6 +32,14 @@
   <button id="btnSend">Отправить в БД (POST /api/formulas)</button>
   <button id="btnList">Показать, что в БД</button>
 
+  <h2>4. Расчёт массы конечного продукта</h2>
+  <label>id формулы <input id="calcId" type="number" min="1" style="width:5rem"></label>
+  <label>разброс констант, ±% <input id="calcSpread" type="number" min="0" max="50" value="5" style="width:4rem"></label>
+  <label>допуск качества, % <input id="calcTol" type="number" min="1" max="100" value="10" style="width:4rem"></label><br>
+  <label>массы реагентов 1-го шага, кг (необязательно, JSON):
+    <input id="calcInputs" placeholder='{"C6H12O6": 120}' style="width:18rem"></label>
+  <button id="btnCalc">Рассчитать</button>
+
   <pre id="log"></pre>
   <script src="js/formulas.js"></script>
 </body>

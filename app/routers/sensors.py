@@ -9,15 +9,13 @@ router = APIRouter(prefix="/api/sensors", tags=["sensors"])
 
 
 @router.get("")
-async def list_sensors(stage: str | None = None, db: AsyncSession = Depends(get_db)):
+async def list_sensors(db: AsyncSession = Depends(get_db)):
     """Список датчиков для выбора на фронте (tag = то, что кладётся в dict_PLC_id)."""
     q = (
         select(Sensor, Instrument.name)
         .join(Instrument, Instrument.id == Sensor.instrument_id)
-        .order_by(Sensor.stage, Sensor.tag)
+        .order_by(Sensor.tag)
     )
-    if stage:
-        q = q.where(Sensor.stage == stage)
     rows = (await db.execute(q)).all()
     return [
         {

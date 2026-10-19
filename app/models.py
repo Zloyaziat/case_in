@@ -41,7 +41,7 @@ class FormulaStep(Base):
 
     in_data = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     out_data = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
-    dict_PLC_id = Column("dict_plc_id",JSONB, nullable=True, server_default=text("'[]'::jsonb"))
+    dict_PLC_id = Column("dict_plc_id", JSONB, nullable=True, server_default=text("'{}'::jsonb"))
 
     amount_time = Column(Interval, nullable=True)
 
@@ -91,4 +91,4 @@ class Sensor(Base):
     instrument = relationship("Instrument", back_populates="sensors")
 
     def __repr__(self):
-        return f"<Sensor id={self.id} tag={self.tag!r} stage={self.stage!r}>"
+        return f"<Sensor id={self.id} tag={self.tag!r}>"
