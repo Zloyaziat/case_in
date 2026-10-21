@@ -113,6 +113,7 @@
     lastRecId = 0;
     $("recs").replaceChildren();
     $("recs").textContent = "пока нет";
+    $("recs").classList.add("muted");
     clearInterval(timer);
     refresh();
     timer = setInterval(refresh, POLL_MS);
@@ -157,7 +158,10 @@
   async function loadRecs() {
     const r = await api(`/api/batches/${batchId}/recommendations?after_id=${lastRecId}`);
     if (!r.ok || !r.body.length) return;
-    if (lastRecId === 0) $("recs").replaceChildren();
+    if (lastRecId === 0) {
+      $("recs").replaceChildren();
+      $("recs").classList.remove("muted");   // "пока нет" было серым, рекомендации - нет
+    }
     r.body.forEach((x) => {
       const div = document.createElement("div");
       div.textContent = `шаг ${x.step}, ${x.time_s} с: ${x.message} ` +
