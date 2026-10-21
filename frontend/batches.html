@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Партии — оператор</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1.5rem; max-width: 1100px; }
+    h2 { margin: 1.2rem 0 .4rem; font-size: 1.05rem; }
+    button { padding: .45rem .9rem; margin: 0 .4rem .4rem 0; cursor: pointer; }
+    input, select { padding: .3rem; }
+    table { border-collapse: collapse; font-size: .85rem; margin: .4rem 0; }
+    th, td { border: 1px solid #ccc; padding: .25rem .5rem; text-align: left; }
+    .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: .3rem 0; }
+    .muted { color: #777; font-size: .85rem; }
+    #state { font-size: 1.1rem; margin: .3rem 0; }
+    #recs div { padding: .35rem .5rem; margin: .25rem 0; background: #fff4d6; border-left: 4px solid #e0a000; }
+    #log { background: #111; color: #ddd; padding: .6rem; height: 160px; overflow: auto;
+           font: .8rem/1.35 ui-monospace, monospace; white-space: pre-wrap; }
+    .ok { color: #6c6; } .err { color: #f77; }
+  </style>
+</head>
+<body>
+  <h1>Партии</h1>
+  <p class="muted"><a href="formulas.html">Приёмка формул</a> · <a href="/docs">API</a></p>
+
+  <h2>1. Формула и сырьё</h2>
+  <div class="row">
+    <label>Формула <select id="formula"></select></label>
+  </div>
+  <div class="row" id="vinBox"></div>
+  <div class="row">
+    <label>ускорение времени × <input id="speed" type="number" min="0.1" max="100" step="0.5" value="1" style="width:4rem"></label>
+    <button id="btnStart">Создать партию и запустить</button>
+  </div>
+
+  <h2>2. Ход партии</h2>
+  <div id="state" class="muted">партия не выбрана</div>
+  <div class="row">
+    <button id="btnNext" disabled>Завершить шаг досрочно</button>
+    <button id="btnAbort" disabled>Прервать партию</button>
+  </div>
+  <div id="stepsBox"></div>
+  <div id="windowsBox"></div>
+
+  <h2>Рекомендации</h2>
+  <div id="recs" class="muted">пока нет</div>
+
+  <h2>3. Завершение</h2>
+  <div class="row">
+    <label>v_finish <input id="vFinish" type="number" min="0" step="any" style="width:6rem"></label>
+    <label>качество <input id="quality" type="number" min="0" step="any" style="width:5rem"></label>
+    <label>ед. <input id="qualityUnit" value="%" style="width:3rem"></label>
+    <label><input id="isRef" type="checkbox"> сделать эталонной</label>
+    <button id="btnFinish" disabled>Завершить партию</button>
+  </div>
+
+  <h2>Последние партии</h2>
+  <div id="batchesBox"></div>
+
+  <pre id="log"></pre>
+  <script src="js/batches.js"></script>
+</body>
+</html>
