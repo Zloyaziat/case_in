@@ -1,0 +1,5 @@
+# файлы, которые выполняются внутри Linux-контейнеров: всегда LF, даже при core.autocrlf=true на Windows
+*.sql text eol=lf
+*.sh  text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
