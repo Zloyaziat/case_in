@@ -35,6 +35,15 @@ services:
       postgres:
         condition: service_healthy
 
+  frontend:
+    build: ./frontend
+    container_name: formula_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: formula_pgadmin

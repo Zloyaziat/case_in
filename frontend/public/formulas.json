@@ -1,0 +1,53 @@
+{
+  "formulas": [
+    {
+      "name": "Лактат кальция и гипс", "version": 1,
+      "steps": [
+    {"step": 1,
+     "step_key": "2C3H6O3 + CaCO3 -> Ca(C3H5O3)2 + H2O + CO2",
+     "step_value": "Ca(C3H5O3)2",
+     "in_data": {"C3H6O3": 123.0, "CaCO3": 30.0},
+     "out_data": {"Ca(C3H5O3)2": 64.0},
+     "constant": {"conversion": 0.98},
+     "amount_time": 50,
+     "dict_PLC_id": {
+  "F-TT-01": {
+    "pre": {
+      "max": 40,
+      "min": 35
+    },
+    "post": {
+      "max": 42,
+      "min": 30
+    },
+    "during": {
+      "max": 40,
+      "min": 35
+    }
+  },
+  "F-pH-02": {
+    "pre": {
+      "max": 6.5,
+      "min": 5.5
+    },
+    "post": {
+      "max": 5.5,
+      "min": 4
+    },
+    "during": {
+      "max": 6.5,
+      "min": 4.5
+    }
+  }
+}},
+    {"step": 2,
+     "step_key": "Ca(C3H5O3)2 + H2SO4 + 2H2O -> 2C3H6O3 + CaSO4*2H2O",
+     "step_value": "C3H6O3",
+     "in_data": {"H2SO4": 30.0, "H2O": 15.0},
+     "out_data": {"C3H6O3": 45.2, "CaSO4*2H2O": 43.2},
+     "constant": {"conversion": 0.95, "extraction": 0.9},
+     "amount_time": 90, "dict_PLC_id": {}}
+  ]
+  }
+]
+}
